@@ -1,0 +1,15 @@
+.git
+__pycache__/
+*.pyc
+*.pyo
+*.log
+logs/
+gradio_server.log
+gradio_server_agi.log
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+docs/superpowers/
+dist/
+*.tar
+*.tar.gz

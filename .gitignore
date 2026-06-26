@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.pyo
+*.log
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# 附加
+.env
+*.tar
+*.tar.gz

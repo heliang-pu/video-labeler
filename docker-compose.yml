@@ -1,0 +1,27 @@
+services:
+  video-labeler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: video-labeler:latest
+    container_name: video-labeler
+    restart: unless-stopped
+    ports:
+      - "7860:7860"
+    volumes:
+      - /workspace/dataset:/workspace/dataset
+      - ./label_groups.json:/app/video_labeler/label_groups.json
+      - ./logs:/app/video_labeler/logs
+    environment:
+      PYTHONUNBUFFERED: "1"
+      PYTHONPATH: /app
+    command:
+      - python
+      - -m
+      - video_labeler.main_gradio
+      - --host
+      - 0.0.0.0
+      - --port
+      - "7860"
+      - --top-video-path
+      - /workspace/dataset/agi_arm_bot/camera_pen_touch_clean_del_52_376

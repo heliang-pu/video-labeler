@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "groups": {
+    "parcel_sorting_bimanual": [
+      "left_hand_pickup",
+      "object_at_center",
+      "right_hand_transfer"
+    ]
+  }
+}

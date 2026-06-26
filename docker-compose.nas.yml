@@ -1,0 +1,26 @@
+services:
+  video-labeler:
+    image: video-labeler:latest
+    container_name: video-labeler
+    restart: unless-stopped
+    ports:
+      - "7860:7860"
+    volumes:
+      # NAS 上把左边路径改成你的真实数据集目录。
+      # 容器内路径建议保持 /workspace/dataset，README 和默认命令都按这个路径写。
+      - /volume1/robot_datasets:/workspace/dataset
+      - ./label_groups.json:/app/video_labeler/label_groups.json
+      - ./logs:/app/video_labeler/logs
+    environment:
+      PYTHONUNBUFFERED: "1"
+      PYTHONPATH: /app
+    command:
+      - python
+      - -m
+      - video_labeler.main_gradio
+      - --host
+      - 0.0.0.0
+      - --port
+      - "7860"
+      - --top-video-path
+      - /workspace/dataset/agi_arm_bot/camera_pen_touch_clean_del_52_376
