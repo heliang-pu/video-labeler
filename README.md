@@ -1,34 +1,73 @@
-# Video Labeler
+# 🎬 Video Labeler
 
-浏览器版多视角视频区间标注工具，项目根目录：
+> 浏览器版**多视角视频区间标注工具**，专为具身智能（Embodied AI）数据闭环打造。
 
-```text
-/workspace/video_labeler
-```
+用浏览器按秒标注 LeRobot episode 数据集的**任务阶段区间**，一键导出 Qwen2.5-VL / LLaMA-Factory 微调数据集，打通「标注 → 训练 → 推理」全流程。基于 Gradio，支持多人协作标注。
 
-它现在主要服务这条闭环：
+## ✨ 功能特性
+
+- **多视角同步** — `top` / `right_wrist` / `left_wrist` 三视角视频同步浏览
+- **秒级区间标注** — 按秒（支持小数）标注任务阶段区间，按视频帧率精确对齐；非逐帧点标签
+- **LeRobot 原生支持** — 直接加载 LeRobot episode 数据集，每个 episode 独立保存 `sublabels_episode_XXXX.json`，多人互不覆盖
+- **多人协作** — 人工分配 episode 范围，命令行一键合并为全局 `sublabels.json`（局部秒数自动换算为全局秒数）
+- **一键导出微调数据** — 导出 Qwen2.5-VL / LLaMA-Factory 格式（含三视角图、instruction、阶段标签、训练 YAML）
+- **Docker 部署** — 数据集通过 volume 挂载，不打进镜像
+
+## 🔄 数据闭环
 
 ```text
 LeRobot episode 数据集
-  -> 浏览器按秒标注阶段区间
-  -> 自动保存 sublabels_episode_XXXX.json
-  -> 合并成 sublabels.json
-  -> 导出 Qwen2.5-VL / LLaMA-Factory 微调数据
-  -> 训练 LoRA
-  -> 推理测试阶段标签
+  → 浏览器按秒标注阶段区间
+  → 自动保存 sublabels_episode_XXXX.json
+  → 合并成 sublabels.json
+  → 导出 Qwen2.5-VL / LLaMA-Factory 微调数据
+  → 训练 LoRA
+  → 推理测试阶段标签
 ```
 
-当前正在用的数据集示例：
+## 🚀 快速开始
+
+### Docker（推荐）
+
+```bash
+git clone https://github.com/heliang-pu/video-labeler.git
+cd video-labeler
+
+cp docker-compose.nas.yml docker-compose.yml
+# 编辑 docker-compose.yml：把 volume 左侧改成你的数据集目录，右侧保持 /workspace/dataset
+docker compose up -d
+# 访问 http://<你的机器IP>:7860
+```
+
+### 本地运行
+
+```bash
+bash setup_video_labeler.sh                 # 首次：装环境
+source shell_utils.sh && activate_video_labeler_env
+PYTHONPATH=.. python -m video_labeler.main_gradio --host 0.0.0.0 --port 7860 \
+  --top-video-path /path/to/lerobot_dataset
+```
+
+## 📦 项目结构
 
 ```text
-/workspace/dataset/agi_arm_bot/camera_pen_touch_clean_del_52_376
+video_labeler/
+├── main_gradio.py                 # 入口
+├── gradio_app.py / gradio_session.py   # Gradio UI 与会话逻辑
+├── controller.py                  # 标注控制器
+├── video.py / video_sources.py    # 视频加载与多视角
+├── time_ranges.py / episode_metadata.py   # 区间与 episode 元数据
+├── storage.py / workspace_store.py     # 标注持久化
+├── exporter.py                    # 导出微调数据集
+├── merge_episode_sublabels.py     # 多人标注合并
+├── training_config.py             # 训练配置/YAML 导出
+├── collaboration*.py              # 协作相关
+├── label_groups.py / .json        # 标签组
+├── Dockerfile / docker-compose*.yml    # 容器部署
+└── test_*.py                      # 测试
 ```
 
-当前远程访问链接：
-
-```text
-http://<你的机器IP>:7860
-```
+> 下文是完整使用说明（标注流程、多人协作、导出、训练、推理、Docker 部署到 NAS）。文中 `/workspace/...` 为示例路径，替换成你的实际路径即可。
 
 ## 当前任务目标
 
